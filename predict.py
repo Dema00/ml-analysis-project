@@ -5,6 +5,12 @@ from proofofconcept import analyze
 import os
 import argparse
 
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
+
 def add_columns_with_default(df, columns, default_value=0):
     # Add columns with the default value
     for column in columns:
@@ -23,32 +29,35 @@ def reduce_features(input_df, features):
     return reduced_df
 
 def classify_data(classifier, input_df):
-    """Classify the data using the provided classifier."""
-    # Assuming the classifier requires scaling (e.g., StandardScaler was used during training)
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(input_df)
+    if hasattr(classifier, 'feature_names_in_'):
+        features = classifier.feature_names_in_
+    else:
+        raise ValueError("The classifier does not have 'feature_names_in_' attribute.")
+    
+    if not set(features).issubset(input_df.columns):
+        missing_features = set(features) - set(input_df.columns)
+        print(f"Warning: Missing features in input data: {missing_features}")
+
+    ordered_input_df = input_df[features].reindex(columns=features, fill_value=0)
+
+    with open("scaler.pkl", 'rb') as f:
+        scaler = pickle.load(f)
+    scaled_data = scaler.transform(ordered_input_df)
     
     predictions = classifier.predict(scaled_data)
     return predictions
 
 def main(pickle_path, input_df):
-    # Load the classifier
-    classifier = load_classifier(pickle_path)
 
-    # Get the features required by the classifier
+    classifier = load_classifier(pickle_path)
     features = classifier.feature_names_in_
 
     #columns_to_add = ['packer_type_Armadillov1xxv2xx', 'packer_type_NETDLLMicrosoft', 'packer_type_UPXv20MarkusLaszloReiser']
 
     #input_df = add_columns_with_default(input_df, columns_to_add)
 
-    # Reduce the DataFrame to those features
     reduced_df = reduce_features(input_df, features)
-
-    # Classify the data
     predictions = classify_data(classifier, reduced_df)
-    
-    # Add predictions to the original DataFrame
     reduced_df['prediction'] = predictions
     
     return reduced_df
@@ -77,4 +86,7 @@ if __name__ == "__main__":
 
 
     # Display the first few rows of the result
-    print(result_df['prediction'].values)
+    if (result_df['prediction'].values[0] == 0):
+        print("Benign")
+    else:
+        print("Malware")

@@ -188,7 +188,7 @@ class pe_features():
                 pe.OPTIONAL_HEADER.SizeOfUninitializedData,\
                 pe.OPTIONAL_HEADER.AddressOfEntryPoint,\
                 pe.OPTIONAL_HEADER.BaseOfCode,\
-                pe.OPTIONAL_HEADER.BaseOfData,\
+                getattr(pe.OPTIONAL_HEADER, 'BaseOfData', 0),
                 #Check the ImageBase for the condition
                 self.Optional_header_ImageBase(pe.OPTIONAL_HEADER.ImageBase),\
                 # Checking for SectionAlignment condition
@@ -237,13 +237,12 @@ class pe_features():
     def check_packer(self):
         result=[]
         matches = self.rules.match(self.source)
-        print(matches)
         if matches == {}:
             result.append([0,"NoPacker"])
         else:
-            #result.append([1,matches['main'][0]['rule']])
+            result.append([1,matches['main'][0]['rule']])
             
-            result.append([1,matches[0]])
+            #result.append([1,matches[0]])
         return result
 
     def get_text_data_entropy(self,pe):
@@ -318,14 +317,8 @@ class pe_features():
             print("{} while opening {}".format(e,self.source))
         else:
             data += self.extract_dos_header(pe)
-            print("DOS HDR")
-            print(data)
             data += self.extract_file_header(pe)
-            print(data)
-            print("FILE HDR")
             data += self.extract_optional_header(pe)
-            print("OPT HDR")
-            print(data)
             # derived features
             #number of suspicisou sections and non-suspicsious section
             num_ss_nss = self.get_count_suspicious_sections(pe)
@@ -346,6 +339,5 @@ class pe_features():
             self.Derived_header
         )
 
-        print(len(data))
         df = pd.DataFrame([data], columns=columns)
         return df
