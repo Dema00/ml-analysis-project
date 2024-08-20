@@ -44,6 +44,7 @@ def classify_data(classifier, input_df):
         scaler = pickle.load(f)
     scaled_data = scaler.transform(ordered_input_df)
     
+    print("Predicting")
     predictions = classifier.predict(scaled_data)
     return predictions
 

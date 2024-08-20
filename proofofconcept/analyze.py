@@ -316,11 +316,15 @@ class pe_features():
         except Exception as e:
             print("{} while opening {}".format(e,self.source))
         else:
+            print("Checking DOS header")
             data += self.extract_dos_header(pe)
+            print("Checking File header")
             data += self.extract_file_header(pe)
+            print("Checking Optional header")
             data += self.extract_optional_header(pe)
             # derived features
             #number of suspicisou sections and non-suspicsious section
+            print("Computing derived features")
             num_ss_nss = self.get_count_suspicious_sections(pe)
             data += num_ss_nss
             # check for packer and packer type
