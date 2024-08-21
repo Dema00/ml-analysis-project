@@ -12,19 +12,16 @@ warnings.warn = warn
 
 
 def add_columns_with_default(df, columns, default_value=0):
-    # Add columns with the default value
     for column in columns:
         df[column] = default_value
     return df
 
 def load_classifier(pickle_path):
-    """Load the MLP classifier from a pickle file."""
     with open(pickle_path, 'rb') as f:
         classifier = pickle.load(f)
     return classifier
 
 def reduce_features(input_df, features):
-    """Reduce the input DataFrame to the specified features."""
     reduced_df = input_df[features].copy()
     return reduced_df
 
@@ -71,15 +68,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     abs_path = os.path.abspath(args.source_path)
-    input_df = analyze.pe_features(abs_path).extract_all()  # Replace with your DataFrame loading logic
+    input_df = analyze.pe_features(abs_path).extract_all()
 
-    # Path to the pickle file
     pickle_path = 'mlp_model.pkl'
 
-    # Classify the data and get the result DataFrame
     result_df = main(pickle_path, input_df)
 
-    # Set options to display the entire DataFrame
     pd.set_option('display.max_rows', None)  # Show all rows
     pd.set_option('display.max_columns', None)  # Show all columns
     pd.set_option('display.expand_frame_repr', False)  # Avoid wrapping of DataFrame
