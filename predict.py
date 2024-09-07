@@ -41,7 +41,6 @@ def classify_data(classifier, input_df):
         scaler = pickle.load(f)
     scaled_data = scaler.transform(ordered_input_df)
     
-    print("Predicting")
     predictions = classifier.predict(scaled_data)
     return predictions
 
@@ -67,10 +66,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print("Predicting...")
     abs_path = os.path.abspath(args.source_path)
     input_df = analyze.pe_features(abs_path).extract_all()
 
-    pickle_path = 'mlp_model.pkl'
+    pickle_path = 'svm_model.pkl'
 
     result_df = main(pickle_path, input_df)
 
@@ -80,7 +80,6 @@ if __name__ == "__main__":
 
 
 
-    # Display the first few rows of the result
     if (result_df['prediction'].values[0] == 0):
         print("Benign")
     else:
